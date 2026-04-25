@@ -22,24 +22,39 @@ from openhands.sdk import get_logger
 logger = get_logger(__name__)
 
 
+def _has_registry_prefix(image: str) -> bool:
+    """Check if an image reference includes a registry hostname.
+
+    A registry hostname is detected when the first path segment contains a dot
+    (e.g. ``ghcr.io``, ``123456789.dkr.ecr.us-east-1.amazonaws.com``).
+    Docker Hub org/user names never contain dots, so this is a reliable heuristic
+    (same approach used by ``image_utils._parse``).
+    """
+    first_segment = image.split("/")[0]
+    return "." in first_segment
+
+
 def get_official_docker_image(
     image_name: str,
 ) -> str:
     # Official SWE-Smith image - present already in HuggingFace dataset
     official_image_name: str = image_name.lower().strip()
-    if not official_image_name.startswith("docker.io"):
+    if not _has_registry_prefix(official_image_name):
         official_image_name = f"docker.io/{official_image_name}"
     logger.debug(f"Official SWE-Smith image: {official_image_name}")
     return official_image_name
 
 
 def extract_custom_tag(base_image: str) -> str:
-    """
-    Extract SWE-Smith instance ID from official SWE-Smith image name.
+    """Extract a unique identifier from a SWE-Smith base image reference.
 
-    Example:
+    Always returns the last path segment with any ``:tag`` stripped::
+
         docker.io/jyangballin/swesmith.x86_64.oauthlib_1776_oauthlib.1fd52536
         -> swesmith.x86_64.oauthlib_1776_oauthlib.1fd52536
+
+        123456789.dkr.ecr.us-east-1.amazonaws.com/valkyrie/reponame:tag
+        -> reponame
     """
     name_tag = base_image.split("/")[-1]
     name = name_tag.split(":")[0]
