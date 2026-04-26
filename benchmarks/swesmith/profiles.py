@@ -99,6 +99,14 @@ class Httpxae1b9f66(PythonProfile):
     org_gh: str = "studentkaramuk-swesmith"
 
 
+@dataclass
+class FlaskBc098406(PythonProfile):
+    owner: str = "pallets"
+    repo: str = "flask"
+    commit: str = "bc098406af9537aacc436cb2ea777fbc9ff4c5aa"
+    org_gh: str = "Ethara-Ai"
+
+
 # ---- Auto-register all profiles defined above ----
 _BASE_CLASSES = {RepoProfile, GoProfile, PythonProfile}
 

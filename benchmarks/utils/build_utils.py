@@ -421,7 +421,7 @@ def build_image(
         image=target_image,
         target=target,
         # SWE-Bench only supports linux/amd64 images
-        platforms=["linux/amd64"],
+        platforms=["linux/arm64"],
         push=push,
         # Override git info to use SDK submodule info instead of benchmarks repo
         git_ref=git_ref,
@@ -662,7 +662,8 @@ def default_build_output_dir(
     Default: ./builds/<dataset>/<split>
     Keeps build outputs in one predictable place, easy to .gitignore.
     """
-    root = (base_dir or Path.cwd()) / "builds" / dataset / split
+    safe_dataset = dataset.replace(os.sep, "__")
+    root = (base_dir or Path.cwd()) / "builds" / safe_dataset / split
     root.mkdir(parents=True, exist_ok=True)
     return root
 

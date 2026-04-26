@@ -215,6 +215,7 @@ class SWESmithEvaluation(Evaluation):
                 working_dir="/workspace",
                 forward_env=all_forward_env,
                 volumes=volumes,
+                platform="linux/arm64",
             )
         elif self.metadata.workspace_type == "remote":
             runtime_api_key = os.getenv("RUNTIME_API_KEY")
