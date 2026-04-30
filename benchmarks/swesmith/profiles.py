@@ -10,10 +10,13 @@ Usage in eval_infer.py:
     import benchmarks.swesmith.profiles  # noqa: F401
 """
 
+import re
 from dataclasses import dataclass
 
+from swebench.harness.constants import TestStatus
 from swesmith.profiles import registry  # triggers __init__.py → registers all languages
 from swesmith.profiles.base import RepoProfile
+from swesmith.profiles.c import CProfile
 from swesmith.profiles.golang import GoProfile
 from swesmith.profiles.python import PythonProfile
 
@@ -107,8 +110,30 @@ class FlaskBc098406(PythonProfile):
     org_gh: str = "Ethara-Ai"
 
 
+@dataclass
+class JqB9e19de7(CProfile):
+    owner: str = "jqlang"
+    repo: str = "jq"
+    commit: str = "b9e19de76e6e19d044007ead65d164710dc98877"
+    org_gh: str = "Ethara-Ai"
+    test_cmd: str = "make check"
+
+    def log_parser(self, log: str) -> dict[str, str]:
+        test_status_map: dict[str, str] = {}
+        pattern = r"^\s*(PASS|FAIL):\s(.+)$"
+        for line in log.split("\n"):
+            match = re.match(pattern, line.strip())
+            if match:
+                status, test_name = match.groups()
+                if status == "PASS":
+                    test_status_map[test_name] = TestStatus.PASSED.value
+                elif status == "FAIL":
+                    test_status_map[test_name] = TestStatus.FAILED.value
+        return test_status_map
+
+
 # ---- Auto-register all profiles defined above ----
-_BASE_CLASSES = {RepoProfile, GoProfile, PythonProfile}
+_BASE_CLASSES = {RepoProfile, CProfile, GoProfile, PythonProfile}
 
 for _name, _obj in list(globals().items()):
     if (
