@@ -19,7 +19,7 @@ dependencies = [
     "openhands-workspace",
     "modal>=1.1.4",
     "swebench==4.1.0",
-    "swesmith>=0.0.9",
+    "swesmith",
     "commit0",
     "pytest-json-report",
     # SWT-Bench dependencies (since the git package doesn't install them properly)
@@ -136,6 +136,7 @@ openhands-tools = { workspace = true }
 openhands-workspace = { workspace = true }
 openhands-agent-server = { workspace = true }
 swt-bench = { git = "https://github.com/logic-star-ai/swt-bench.git", rev = "5fdcd446ff05e248ecfffc19d560a210699f71f8" }
+swesmith = { git = "https://github.com/Ethara-Ai/SWE-smith.git", branch = "main" }
 
 [tool.uv.workspace]
 members = [

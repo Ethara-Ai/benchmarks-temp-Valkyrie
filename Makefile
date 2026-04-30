@@ -13,7 +13,7 @@ UNDERLINE := \033[4m
 # Required uv version
 REQUIRED_UV_VERSION := 0.8.13
 
-.PHONY: build format lint clean help check-uv-version
+.PHONY: build format lint clean help check-uv-version update-swesmith
 
 # Default target
 .DEFAULT_GOAL := help
@@ -57,6 +57,15 @@ pre-commit:
 	@uv run pre-commit run --all-files
 	@$(ECHO) "$(GREEN)Pre-commit run successfully.$(RESET)"
 
+update-swesmith: check-uv-version
+	@$(ECHO) "$(CYAN)Refreshing swesmith to latest Ethara-Ai/SWE-smith@main...$(RESET)"
+	@uv lock --upgrade-package swesmith
+	@$(ECHO) "$(YELLOW)Syncing environment with updated lock...$(RESET)"
+	@uv sync --dev
+	@$(ECHO) "$(GREEN)swesmith updated. Review the uv.lock diff and commit it:$(RESET)"
+	@$(ECHO) "  $(CYAN)git diff uv.lock$(RESET)"
+	@$(ECHO) "  $(CYAN)git add uv.lock && git commit -m 'chore: bump swesmith to latest main'$(RESET)"
+
 clean:
 	@$(ECHO) "$(YELLOW)Cleaning up cache files...$(RESET)"
 	@find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
@@ -71,6 +80,7 @@ help:
 	@$(ECHO) ""
 	@$(ECHO) "$(UNDERLINE)Commands:$(RESET)"
 	@$(ECHO) "  $(GREEN)build$(RESET)                Set up development environment"
+	@$(ECHO) "  $(GREEN)update-swesmith$(RESET)      Pull latest Ethara-Ai/SWE-smith@main and update lock"
 	@$(ECHO) "  $(GREEN)format$(RESET)               Format code with ruff"
 	@$(ECHO) "  $(GREEN)lint$(RESET)                 Lint code with ruff"
 	@$(ECHO) "  $(GREEN)pre-commit$(RESET)           Run pre-commit hooks"

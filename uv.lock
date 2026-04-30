@@ -2467,6 +2467,7 @@ dependencies = [
     { name = "python-json-logger" },
     { name = "requests" },
     { name = "swebench" },
+    { name = "swesmith" },
     { name = "swt-bench" },
     { name = "tenacity" },
     { name = "toml" },
@@ -2521,6 +2522,7 @@ requires-dist = [
     { name = "python-json-logger", specifier = ">=3.3.0" },
     { name = "requests" },
     { name = "swebench", specifier = "==4.1.0" },
+    { name = "swesmith", git = "https://github.com/Ethara-Ai/SWE-smith.git?branch=main" },
     { name = "swt-bench", git = "https://github.com/logic-star-ai/swt-bench.git?rev=5fdcd446ff05e248ecfffc19d560a210699f71f8" },
     { name = "tenacity", specifier = ">=9.1.2" },
     { name = "toml" },
@@ -6840,6 +6842,11 @@ sdist = { url = "https://files.pythonhosted.org/packages/24/e1/c997299ad7bf08887
 wheels = [
     { url = "https://files.pythonhosted.org/packages/36/67/981d8b642ac3eac7c8a7b7832ff8b2fb74f96b28b5fcd9a8979879e5c46d/swebench-4.1.0-py3-none-any.whl", hash = "sha256:1243776f720047cc9e20a427f7a52b75c13a07abda6154fb60fe77f82ec8af57", size = 157231, upload-time = "2025-09-11T02:57:58.953Z" },
 ]
+
+[[package]]
+name = "swesmith"
+version = "0.0.9"
+source = { git = "https://github.com/Ethara-Ai/SWE-smith.git?branch=main#3a7c6bb1101f022a958ec549e70948bbacf8b0ba" }
 
 [[package]]
 name = "swt-bench"
