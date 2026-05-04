@@ -351,7 +351,29 @@ class SWESmithEvaluation(Evaluation):
         # Remove untracked files (respects .gitignore, so installed deps are preserved)
         workspace.execute_command(f"cd {repo_path} ; git clean -fdq")
 
-        # Capture HEAD after checkout so base_commit reflects the bug branch
+        # Squash git history into a single commit to prevent the agent from
+        # discovering the fix via git log/show/diff on prior commits.
+        squash_result = workspace.execute_command(
+            f"cd {repo_path} && "
+            f"git checkout --orphan _squashed && "
+            f"git add -A && "
+            f"git config user.email 'eval@openhands.ai' && "
+            f"git config user.name 'Evaluation' && "
+            f"git commit -m 'Initial commit' --allow-empty"
+        )
+        assert squash_result.exit_code == 0, (
+            f"git history squash failed: {squash_result.stderr}"
+        )
+        # Clean up old branches, reflog, and unreachable objects (best-effort)
+        workspace.execute_command(
+            f"cd {repo_path} && "
+            f"git branch -D $(git branch | grep -v '_squashed' | tr -d ' ') 2>/dev/null; "
+            f"git branch -m _squashed main 2>/dev/null || true && "
+            f"git reflog expire --expire=now --all && "
+            f"git gc --prune=now --quiet"
+        )
+
+        # Capture HEAD after squash so base_commit reflects the clean state
         head_result = workspace.execute_command(f"cd {repo_path} ; git rev-parse HEAD")
         assert head_result.exit_code == 0, (
             f"git rev-parse HEAD failed: {head_result.stderr}"
@@ -389,7 +411,6 @@ class SWESmithEvaluation(Evaluation):
         )
         git_patch = git_patch_result.stdout
 
-        # EvalOutput is your model; keep fields consistent with prior JSONL
         out = EvalOutput(
             instance_id=instance.id,
             attempt=self.current_attempt,
@@ -439,8 +460,11 @@ def main() -> None:
     llm = LLM.model_validate_json(llm_config)
     logger.info("Using LLM config: %s", llm.model_dump_json(indent=2))
 
+    dataset_name = args.dataset
+    if os.path.isfile(dataset_name):
+        dataset_name = os.path.basename(dataset_name)
     dataset_description = (
-        args.dataset.replace("/", "__") + "-" + args.split.replace("/", "__")
+        dataset_name.replace("/", "__") + "-" + args.split.replace("/", "__")
     )
 
     structured_output_dir = construct_eval_output_dir(

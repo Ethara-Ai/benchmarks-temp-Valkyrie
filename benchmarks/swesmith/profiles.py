@@ -17,6 +17,7 @@ from swebench.harness.constants import TestStatus
 from swesmith.profiles import registry  # triggers __init__.py → registers all languages
 from swesmith.profiles.base import RepoProfile
 from swesmith.profiles.c import CProfile
+from swesmith.profiles.cpp import CppProfile, parse_log_ctest
 from swesmith.profiles.golang import GoProfile
 from swesmith.profiles.python import PythonProfile
 
@@ -111,12 +112,13 @@ class FlaskBc098406(PythonProfile):
 
 
 @dataclass
-class JqB9e19de7(CProfile):
+class JqB9e19de7EtharaAi(CProfile):
     owner: str = "jqlang"
     repo: str = "jq"
     commit: str = "b9e19de76e6e19d044007ead65d164710dc98877"
     org_gh: str = "Ethara-Ai"
     test_cmd: str = "make check"
+    timeout: int = 3600
 
     def log_parser(self, log: str) -> dict[str, str]:
         test_status_map: dict[str, str] = {}
@@ -132,8 +134,55 @@ class JqB9e19de7(CProfile):
         return test_status_map
 
 
+@dataclass
+class FFmpegA65b3bfeEtharaAi(CProfile):
+    owner: str = "FFmpeg"
+    repo: str = "FFmpeg"
+    commit: str = "a65b3bfe5d5d2606795b2e495cf938f796b6488c"
+    org_gh: str = "Ethara-Ai"
+    test_cmd: str = "make -k fate"
+    timeout: int = 3600
+
+    def log_parser(self, log: str) -> dict[str, str]:
+        import re
+
+        from swebench.harness.constants import TestStatus
+
+        test_status_map: dict[str, str] = {}
+        test_pattern = r"^TEST\s+(.+)$"
+        fail_pattern = r"^Test\s+(.+?)\s+failed\."
+
+        for line in log.split("\n"):
+            stripped = line.strip()
+            match = re.match(test_pattern, stripped)
+            if match:
+                test_name = match.group(1).strip()
+                test_status_map[test_name] = TestStatus.PASSED.value
+                continue
+            match = re.match(fail_pattern, stripped)
+            if match:
+                test_name = match.group(1).strip()
+                test_status_map[test_name] = TestStatus.FAILED.value
+        return test_status_map
+
+
+@dataclass
+class LeveldbAc691084EtharaAi(CppProfile):
+    owner: str = "google"
+    repo: str = "leveldb"
+    commit: str = "ac691084fdc5546421a55b25e7653d450e5a25fb"
+    org_gh: str = "Ethara-Ai"
+    test_cmd: str = (
+        "cd build && ctest --verbose --output-on-failure"
+        " --rerun-failed --repeat until-pass:1"
+    )
+
+    def log_parser(self, log: str) -> dict[str, str]:
+        return parse_log_ctest(log)
+
+
 # ---- Auto-register all profiles defined above ----
-_BASE_CLASSES = {RepoProfile, CProfile, GoProfile, PythonProfile}
+_BASE_CLASSES = {RepoProfile, GoProfile, PythonProfile, CProfile, CppProfile}
 
 for _name, _obj in list(globals().items()):
     if (

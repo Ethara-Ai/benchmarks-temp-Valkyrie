@@ -9,6 +9,8 @@ I've already taken care of all changes to any of the test files described in the
 Also the development environment is already set up for you (i.e., all dependencies already installed), so you don't need to install other packages.
 Your task is to make the minimal changes to non-test files in the {{ instance.repo_path }} directory to ensure the <issue_description> is satisfied.
 
+IMPORTANT: The repository is provided as a snapshot. Do NOT rely on git history, commit messages, or previous revisions to understand or solve the problem — the git history is not meaningful and will not help you. Focus entirely on the current state of the code and the issue description to diagnose and fix the problem.
+
 Follow these phases to resolve the issue:
 
 Phase 1. READING: read the problem and reword it in clearer terms
@@ -50,7 +52,7 @@ Phase 7. VERIFICATION: Test your implementation thoroughly.
    7.2 Add edge cases to your test script to ensure comprehensive coverage.
    7.3 Run existing tests related to the modified code to ensure you haven't broken anything.
 
-8. FINAL REVIEW: Carefully re-read the problem description and compare your changes with the base commit {{ instance.base_commit }}.
+8. FINAL REVIEW: Carefully re-read the problem description and verify your changes.
    8.1 Ensure you've fully addressed all requirements.
    8.2 Run any tests in the repository related to:
      8.2.1 The issue you are fixing
