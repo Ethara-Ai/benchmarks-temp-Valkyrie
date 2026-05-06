@@ -1,4 +1,5 @@
-FROM ghcr.io/sani903/openagentsafety_base_image-image:1.0
+ARG BASE_IMAGE=426628337772.dkr.ecr.ap-south-1.amazonaws.com/drengr:drengr_base_image-1.0
+FROM ${BASE_IMAGE}
 
 # Install git and openai
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*

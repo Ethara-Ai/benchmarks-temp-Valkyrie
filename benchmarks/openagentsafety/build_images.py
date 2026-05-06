@@ -5,8 +5,12 @@ import os
 import subprocess
 from pathlib import Path
 
+from dotenv import load_dotenv
+
 from benchmarks.utils.build_utils import run_docker_build_layer
 
+
+load_dotenv(Path(__file__).parent.parent.parent / ".env")
 
 logger = logging.getLogger(__name__)
 
@@ -30,6 +34,15 @@ def get_vendor_sdk_commit() -> str:
         raise RuntimeError(f"Failed to get SDK commit: {result.stderr}")
 
     return result.stdout.strip()
+
+
+def get_base_image() -> str:
+    registry = os.getenv(
+        "ECR_REGISTRY", "426628337772.dkr.ecr.ap-south-1.amazonaws.com"
+    )
+    repo = os.getenv("ECR_REPO_NAME", "drengr")
+    version = os.getenv("BASE_IMAGE_VERSION", "1.0")
+    return f"{registry}/{repo}:{repo}_base_image-{version}"
 
 
 def get_image_name() -> str:
@@ -82,7 +95,7 @@ def build_workspace_image(force_rebuild: bool = False, no_cache: bool = False) -
         dockerfile=dockerfile_dir / "Dockerfile",
         context=build_context,
         tags=[image_name],
-        build_args=None,
+        build_args={"BASE_IMAGE": get_base_image()},
         push=False,
         platform="linux/amd64",
         load=True,
